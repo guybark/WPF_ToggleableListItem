@@ -4,10 +4,10 @@ The accessible name of each item is bound to the first text string shown on the 
 
 The item's toggled state can be changed by (i) arrowing to the item and pressing Space, (ii) clicking with the mouse anywhere on the item, or (iii) programmatically changing the toggle state using the Accessibility Insights for Windows tool. However the toggle state is changed, the item raises a UIA ToggleState property changed event.
 
-![AIWin reporting the UIA hierarchy of the items in the list.](./WPF_ToggleableListItem/Assets/ToggleableList_UIAHierarchy.png)
+![AIWin reporting the UIA hierarchy of the items in the list.](./WPF_ToggleableListBoxItem/Assets/ToggleableList_UIAHierarchy.png)
 
-![AIWin reporting that an item supports the UIA Toggle pattern and that its current toggle state is On.](./WPF_ToggleableListItem/Assets/ToggleableList_TogglePatternSupported.png)
+![AIWin reporting that an item supports the UIA Toggle pattern and that its current toggle state is On.](./WPF_ToggleableListBoxItem/Assets/ToggleableList_TogglePatternSupported.png)
 
-![AIWin reporting that a UIA ToggleState property changed event when the item's toggle state changes.](./Assets/ToggleableList_UIAEvents.png)
+![AIWin reporting that a UIA ToggleState property changed event when the item's toggle state changes.](./WPF_ToggleableListBoxItem/Assets/ToggleableList_UIAEvents.png)
 
-![AIWin being use to programmaticallty change the toggle state of an item.](./Assets/ToggleableList_ProgrammaticToggle.png)
+![AIWin being use to programmaticallty change the toggle state of an item.](./WPF_ToggleableListBoxItem/Assets/ToggleableList_ProgrammaticToggle.png)
