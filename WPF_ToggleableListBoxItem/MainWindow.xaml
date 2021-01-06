@@ -1,0 +1,52 @@
+﻿<Window x:Class="WPF_ToggleableListItem.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_ToggleableListItem"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid Margin="20">
+        <StackPanel>
+            <TextBlock Name="BirdListLabel" Text="My favourite birds" />
+            <local:ListViewToggleableItems x:Name="BirdList"
+                AutomationProperties.LabeledBy="{Binding ElementName=BirdListLabel}">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <EventSetter Event="KeyDown" Handler="itemKeyDown" />
+                        <EventSetter Event="PreviewMouseDown" Handler="itemPreviewMouseDown" />
+                        <Setter Property="AutomationProperties.Name">
+                            <Setter.Value>
+                                <Binding Path="Name"/>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <!-- The CheckBox is not focusable because the item responds to 
+                                keyboard and mouse input when it has focus. -->
+                            <CheckBox Grid.RowSpan="2" Margin="0 0 4 0" VerticalAlignment="Center"
+                                Focusable="False"
+                                Checked="itemCheckBoxToggled" Unchecked="itemCheckBoxToggled"
+                                IsChecked="{Binding BirdItemIsChecked, Mode=TwoWay}" />
+                            <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="0 0 20 0"/>
+                            <TextBlock Grid.Column="2" Text="{Binding Habitat}" />
+                            <TextBlock Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Voice}" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </local:ListViewToggleableItems>
+        </StackPanel>
+    </Grid>
+</Window>
