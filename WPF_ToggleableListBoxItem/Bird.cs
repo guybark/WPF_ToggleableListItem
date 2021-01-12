@@ -8,6 +8,9 @@ namespace WPF_ToggleableListItem
         public string Habitat { get; set; }
         public string Voice { get; set; }
 
+        private bool isCheckable;
+        public bool IsCheckable { get => isCheckable; set => isCheckable = value; }
+
         private bool birdItemIsChecked;
         public bool BirdItemIsChecked
         {

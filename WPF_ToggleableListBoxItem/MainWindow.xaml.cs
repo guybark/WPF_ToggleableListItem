@@ -53,7 +53,10 @@ namespace WPF_ToggleableListItem
             if (e.Key == Key.Space)
             {
                 var bird = (sender as ListViewItem).DataContext as Bird;
-                bird.BirdItemIsChecked = !bird.BirdItemIsChecked;
+                if (bird.IsCheckable)
+                {
+                    bird.BirdItemIsChecked = !bird.BirdItemIsChecked;
+                }
             }
         }
 
@@ -61,9 +64,32 @@ namespace WPF_ToggleableListItem
         private void itemPreviewMouseDown(object sender, MouseEventArgs e)
         {
             var bird = (sender as ListViewItem).DataContext as Bird;
-            bird.BirdItemIsChecked = !bird.BirdItemIsChecked;
+            if (bird.IsCheckable)
+            {
+                bird.BirdItemIsChecked = !bird.BirdItemIsChecked;
 
-            e.Handled = true;
+                e.Handled = true;
+            }
+        }
+
+        private void CheckBox_Toggled(object sender, RoutedEventArgs e)
+        {
+            foreach (Bird bird in BirdList.ItemsSource)
+            {
+                bird.IsCheckable = (bool)(sender as CheckBox).IsChecked;
+
+                var itemContainer = BirdList.ItemContainerGenerator.ContainerFromItem(bird) as ListViewItem;
+
+                AutomationPeer itemAutomationPeer =
+                    UIElementAutomationPeer.FromElement(itemContainer);
+                if (itemAutomationPeer != null)
+                {
+                    itemAutomationPeer.RaisePropertyChangedEvent(
+                        AutomationElementIdentifiers.IsTogglePatternAvailableProperty,
+                        !bird.IsCheckable, // Assume the state has actually toggled.
+                        bird.IsCheckable);
+                }
+            }
         }
     }
 
@@ -114,7 +140,7 @@ namespace WPF_ToggleableListItem
 
         public override object GetPattern(PatternInterface patternInterface)
         {
-            if (patternInterface == PatternInterface.Toggle)
+            if ((patternInterface == PatternInterface.Toggle) && owner.IsCheckable)
             {
                 return this;
             }

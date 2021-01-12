@@ -6,6 +6,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <local:BirdItemAutomationPropertiesNameConverter x:Key="BirdItemAutomationPropertiesNameConverter" />
+            <BooleanToVisibilityConverter x:Key="b2v" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
