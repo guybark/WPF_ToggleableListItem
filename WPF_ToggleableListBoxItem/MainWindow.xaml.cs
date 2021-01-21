@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Automation.Peers;
@@ -77,19 +78,12 @@ namespace WPF_ToggleableListItem
             foreach (Bird bird in BirdList.ItemsSource)
             {
                 bird.IsCheckable = (bool)(sender as CheckBox).IsChecked;
-
-                var itemContainer = BirdList.ItemContainerGenerator.ContainerFromItem(bird) as ListViewItem;
-
-                AutomationPeer itemAutomationPeer =
-                    UIElementAutomationPeer.FromElement(itemContainer);
-                if (itemAutomationPeer != null)
-                {
-                    itemAutomationPeer.RaisePropertyChangedEvent(
-                        AutomationElementIdentifiers.IsTogglePatternAvailableProperty,
-                        !bird.IsCheckable, // Assume the state has actually toggled.
-                        bird.IsCheckable);
-                }
             }
+
+            // Have all the items raise a LayoutInvalidated event to make 
+            // sure any listening screen reader has a chance to flush any 
+            // cached data it might have on the item.
+            BirdList.RaiseItemsLayoutInvalidatedEvent();
         }
     }
 
@@ -99,18 +93,49 @@ namespace WPF_ToggleableListItem
         {
             return new ListViewToggleableItemsAutomationPeer(this);
         }
+
+        public void RaiseItemsLayoutInvalidatedEvent()
+        {
+            var itemsPeer = UIElementAutomationPeer.FromElement(this) as
+                ListViewToggleableItemsAutomationPeer;
+
+            foreach (Bird bird in this.ItemsSource)
+            {
+                // Have the item peer raise a LayoutInvalidated event.
+                var itemPeer = itemsPeer.GetPeer(bird);
+                itemPeer.RaiseItemLayoutInvalidatedEvent();
+            }
+        }
     }
 
     public class ListViewToggleableItemsAutomationPeer : ListViewAutomationPeer
     {
+        public Dictionary<object, ToggleableItemAutomationPeer> toggleableItemPeers;
+
         public ListViewToggleableItemsAutomationPeer(ListView owner)
             : base(owner)
         {
+            toggleableItemPeers = new Dictionary<object, ToggleableItemAutomationPeer>();
         }
 
         protected override ItemAutomationPeer CreateItemAutomationPeer(object item)
         {
-            return new ToggleableItemAutomationPeer(item, this);
+            var peer = new ToggleableItemAutomationPeer(item, this);
+
+            // Cache the ToggleableItemAutomationPeer for easy access later.
+            toggleableItemPeers[item] = peer;
+
+            return peer;
+        }
+
+        public ToggleableItemAutomationPeer GetPeer(object item)
+        {
+            if (toggleableItemPeers.ContainsKey(item))
+            {
+                return toggleableItemPeers[item];
+            }
+
+            return null;
         }
     }
 
@@ -164,5 +189,20 @@ namespace WPF_ToggleableListItem
         {
             this.owner.BirdItemIsChecked = !this.owner.BirdItemIsChecked;
         }
+
+        public void RaiseItemLayoutInvalidatedEvent()
+        {
+            IRawElementProviderSimple provider = ProviderFromPeer(this);
+
+            NativeMethods.UiaRaiseAutomationEvent(
+                provider,
+                20008); // UIA_LayoutInvalidatedEventId
+        }
+    }
+
+    internal class NativeMethods
+    {
+        [DllImport("UIAutomationCore.dll", EntryPoint = "UiaRaiseAutomationEvent", CharSet = CharSet.Unicode)]
+        public static extern int UiaRaiseAutomationEvent(IRawElementProviderSimple provider, int id);
     }
 }
